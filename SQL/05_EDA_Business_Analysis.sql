@@ -1,0 +1,467 @@
+USE DATABASE INSURANCE_CLAIMS_DB;
+USE SCHEMA CLAIMS;
+USE WAREHOUSE INSURANCE_CLAIMS_WH;
+
+---------------------------------------------------------------------------------------------------------------
+--------------------------------------SQL EDA & Business Analysis----------------------------------------------
+----------------------------------------------------------------------------------------------------------------
+
+
+----------------------------------SECTION A — Overall Claims Performance-----------------------------------
+
+
+-- Query 1 — Overall KPI
+
+SELECT
+    COUNT(*) AS TOTAL_CLAIMS,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT,
+    ROUND(MEDIAN(CLAIM_AMOUNT), 2) AS MEDIAN_CLAIM_AMOUNT,
+    ROUND(SUM(PREMIUM_AMOUNT), 2) AS TOTAL_PREMIUM,
+    ROUND(AVG(PREMIUM_AMOUNT), 2) AS AVG_PREMIUM,
+    ROUND(AVG(CLAIM_TO_PREMIUM_RATIO), 2) AS AVG_CLAIM_TO_PREMIUM_RATIO
+FROM INSURANCE_ANALYTICS;
+
+
+---------------------------------------------SECTION B — Insurance Type Analysis---------------------------------------------
+
+-- Query 2 — Performance by Insurance Type
+
+SELECT
+    INSURANCE_TYPE,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT,
+    ROUND(AVG(PREMIUM_AMOUNT), 2) AS AVG_PREMIUM,
+    ROUND(AVG(CLAIM_TO_PREMIUM_RATIO), 2) AS AVG_CLAIM_TO_PREMIUM_RATIO
+FROM INSURANCE_ANALYTICS
+GROUP BY INSURANCE_TYPE
+ORDER BY TOTAL_CLAIM_AMOUNT DESC;
+
+
+------------------------------------------------------SECTION C — Risk Segmentation-----------------------------------------------
+
+-- Query 3 — Claims by Risk Segment
+
+SELECT
+    RISK_SEGMENTATION,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_TO_PREMIUM_RATIO), 2) AS AVG_CLAIM_TO_PREMIUM_RATIO
+FROM INSURANCE_ANALYTICS
+GROUP BY RISK_SEGMENTATION
+ORDER BY TOTAL_CLAIM_AMOUNT DESC;
+
+
+--------------------------------------SECTION D — Incident Severity-------------------------------------------
+
+-- Query 4
+
+SELECT
+    INCIDENT_SEVERITY,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY INCIDENT_SEVERITY
+ORDER BY TOTAL_CLAIM_AMOUNT DESC;
+
+
+
+---------------------------------------------------SECTION E — Claim Status-------------------------------------------
+
+
+-- Query 5  A = Approved & D = Denied
+
+SELECT
+    CLAIM_STATUS,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY CLAIM_STATUS
+ORDER BY CLAIM_COUNT DESC;
+
+
+
+---------------------------------------------------SECTION F — Claim Amount Distribution-------------------------------------------
+
+
+-- Query 6
+SELECT
+    CLAIM_AMOUNT_BUCKET,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY CLAIM_AMOUNT_BUCKET
+ORDER BY MIN(CLAIM_AMOUNT);
+
+
+
+------------------------------------------------------SECTION G — State-wise Analysis----------------------------------------
+-- Query 7 — Claim Exposure by State
+SELECT
+    STATE,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY STATE
+ORDER BY TOTAL_CLAIM_AMOUNT DESC;
+
+
+----------------------------------------------SECTION H — Customer Demographics---------------------------------------
+
+
+-- Query 8 — Age Group
+SELECT
+    AGE_GROUP,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY AGE_GROUP
+ORDER BY AGE_GROUP;
+
+
+
+-- Query 9 — Employment Status
+
+SELECT
+    EMPLOYMENT_STATUS,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY EMPLOYMENT_STATUS
+ORDER BY TOTAL_CLAIM_AMOUNT DESC;
+
+
+
+-- Query 10 — Education Level
+
+SELECT
+    CUSTOMER_EDUCATION_LEVEL,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY CUSTOMER_EDUCATION_LEVEL
+ORDER BY TOTAL_CLAIM_AMOUNT DESC;
+
+
+----------------------------------------------------------SECTION I — Reporting Delay Analysis---------------------------------
+
+-- Query 11
+SELECT
+    REPORTING_CATEGORY,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 2) AS CLAIM_PERCENTAGE,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(REPORTING_DELAY_DAYS), 2) AS AVG_REPORTING_DELAY
+FROM INSURANCE_ANALYTICS
+GROUP BY REPORTING_CATEGORY
+ORDER BY CLAIM_COUNT DESC;
+
+
+---------------------------------------------------------------SECTION J — Reporting Delay by Insurance Type----------------------
+
+-- Query 12
+SELECT
+    INSURANCE_TYPE,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(AVG(REPORTING_DELAY_DAYS), 2) AS AVG_REPORTING_DELAY,
+    ROUND(
+        SUM(
+            CASE
+                WHEN REPORTING_DELAY_DAYS = 0 THEN 1
+                ELSE 0
+            END
+        ) * 100.0 / COUNT(*),
+        2
+    ) AS SAME_DAY_REPORTING_PERCENTAGE
+FROM INSURANCE_ANALYTICS
+GROUP BY INSURANCE_TYPE
+ORDER BY AVG_REPORTING_DELAY DESC;
+
+
+
+----------------------------------------------- SECTION K — High-Value Claims-----------------------------------------------
+
+
+
+-- Query 13
+
+SELECT
+    CLAIM_VALUE_CATEGORY,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY CLAIM_VALUE_CATEGORY
+ORDER BY TOTAL_CLAIM_AMOUNT DESC;
+
+
+-- Query 14
+
+SELECT
+    INSURANCE_TYPE,
+    COUNT(*) AS HIGH_VALUE_CLAIMS,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_HIGH_VALUE_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_HIGH_VALUE_CLAIM
+FROM INSURANCE_ANALYTICS
+WHERE CLAIM_VALUE_CATEGORY = 'High Value'
+GROUP BY INSURANCE_TYPE
+ORDER BY TOTAL_HIGH_VALUE_AMOUNT DESC;
+
+
+
+----------------------------------------------------SECTION L — Injury Analysis---------------------------------------
+
+
+-- Query 15
+SELECT
+    ANY_INJURY,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY ANY_INJURY
+ORDER BY TOTAL_CLAIM_AMOUNT DESC;
+
+
+
+-----------------------------------------------------------SECTION M — Police Report Analysis----------------------------------
+-- Query 16
+SELECT
+    POLICE_REPORT_AVAILABLE,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY POLICE_REPORT_AVAILABLE
+ORDER BY TOTAL_CLAIM_AMOUNT DESC;
+
+
+
+
+-------------------------------------------------SECTION N — Agent Performance-----------------------------------------------------
+
+-- Query 17
+
+SELECT
+    I.AGENT_ID,
+    E.AGENT_NAME,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(I.CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(I.CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT,
+    ROUND(AVG(I.REPORTING_DELAY_DAYS), 2) AS AVG_REPORTING_DELAY
+FROM INSURANCE_ANALYTICS I
+LEFT JOIN EMPLOYEE_CLEANED E
+    ON I.AGENT_ID = E.AGENT_ID
+GROUP BY I.AGENT_ID, E.AGENT_NAME
+ORDER BY TOTAL_CLAIM_AMOUNT DESC;
+
+
+
+-----------------------------------------------------------SECTION O — Vendor Analysis-----------------------------------------
+
+-- Query 18
+SELECT
+    I.VENDOR_ID,
+    V.VENDOR_NAME,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(I.CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(I.CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS I
+LEFT JOIN VENDOR_CLEANED V
+    ON I.VENDOR_ID = V.VENDOR_ID
+WHERE I.VENDOR_ID IS NOT NULL
+GROUP BY
+    I.VENDOR_ID,
+    V.VENDOR_NAME
+ORDER BY TOTAL_CLAIM_AMOUNT DESC;
+
+
+
+
+--------------------------------------------------------SECTION P — Vendor Coverage-----------------------------------------------
+
+
+-- Query 19
+
+SELECT 
+    COUNT(*) AS TOTAL_CLAIMS, 
+    COUNT(IFF(VENDOR_ID IS NOT NULL, 1, NULL)) AS CLAIMS_WITH_VENDOR, 
+    COUNT(IFF(VENDOR_ID IS NULL, 1, NULL)) AS CLAIMS_WITHOUT_VENDOR, 
+    ROUND(
+        COUNT(IFF(VENDOR_ID IS NOT NULL, 1, NULL)) * 100.0 / COUNT(*), 2) AS VENDOR_COVERAGE_PERCENTAGE 
+FROM INSURANCE_ANALYTICS;
+
+
+------------------------------------------------------------SECTION Q — Monthly Trend---------------------------------------------
+
+-- Query 20
+SELECT
+    LOSS_YEAR,
+    LOSS_MONTH,
+    LOSS_MONTH_NAME,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY
+    LOSS_YEAR,
+    LOSS_MONTH,
+    LOSS_MONTH_NAME
+ORDER BY
+    LOSS_YEAR,
+    LOSS_MONTH;
+
+
+--------------------------------------------- SECTION R — Risk × Severity---------------------------------------------------
+
+
+-- Query 21
+SELECT
+    RISK_SEGMENTATION,
+    INCIDENT_SEVERITY,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY
+    RISK_SEGMENTATION,
+    INCIDENT_SEVERITY
+ORDER BY
+    RISK_SEGMENTATION,
+    TOTAL_CLAIM_AMOUNT DESC;
+
+
+----------------------------------------------------------------SECTION S — Insurance Type × Risk-------------------------------------------
+
+
+-- Query 22
+SELECT
+    INSURANCE_TYPE,
+    RISK_SEGMENTATION,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY
+    INSURANCE_TYPE,
+    RISK_SEGMENTATION
+ORDER BY
+    INSURANCE_TYPE,
+    TOTAL_CLAIM_AMOUNT DESC;
+
+
+-------------------------------------------------------------SECTION T — High-Value Claims & Risk-----------------------------------
+
+
+-- Query 23
+SELECT
+    RISK_SEGMENTATION,
+    CLAIM_VALUE_CATEGORY,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY
+    RISK_SEGMENTATION,
+    CLAIM_VALUE_CATEGORY
+ORDER BY
+    RISK_SEGMENTATION,
+    CLAIM_VALUE_CATEGORY;
+
+-------------------------------------------------------------- SECTION U — Top 10 High-Value Claims--------------------------------
+
+
+SELECT TOP 10
+    TRANSACTION_ID,
+    POLICY_NUMBER,
+    INSURANCE_TYPE,
+    STATE,
+    RISK_SEGMENTATION,
+    INCIDENT_SEVERITY,
+    CLAIM_AMOUNT,
+    PREMIUM_AMOUNT,
+    CLAIM_TO_PREMIUM_RATIO,
+    REPORTING_DELAY_DAYS
+FROM INSURANCE_ANALYTICS
+ORDER BY CLAIM_AMOUNT DESC;
+
+---------------------------------------------- SECTION V — Combined Investigation Indicators------------------------------------
+
+
+-- Query 24
+SELECT
+    TRANSACTION_ID,
+    POLICY_NUMBER,
+    INSURANCE_TYPE,
+    STATE,
+    RISK_SEGMENTATION,
+    INCIDENT_SEVERITY,
+    CLAIM_AMOUNT,
+    CLAIM_TO_PREMIUM_RATIO,
+    REPORTING_DELAY_DAYS,
+
+    CASE
+        WHEN CLAIM_AMOUNT >= 50000 THEN 1
+        ELSE 0
+    END AS HIGH_VALUE_FLAG,
+
+    CASE
+        WHEN CLAIM_TO_PREMIUM_RATIO >= 500 THEN 1
+        ELSE 0
+    END AS HIGH_RATIO_FLAG,
+
+    CASE
+        WHEN REPORTING_DELAY_DAYS >= 3 THEN 1
+        ELSE 0
+    END AS DELAYED_REPORT_FLAG,
+
+    CASE
+        WHEN RISK_SEGMENTATION = 'High' THEN 1
+        ELSE 0
+    END AS HIGH_RISK_FLAG
+
+FROM INSURANCE_ANALYTICS
+WHERE
+    CLAIM_AMOUNT >= 50000
+    OR CLAIM_TO_PREMIUM_RATIO >= 500
+    OR REPORTING_DELAY_DAYS >= 3
+    OR RISK_SEGMENTATION = 'High'
+ORDER BY CLAIM_AMOUNT DESC;
+
+
+----------------------------------------------------------- SECTION W — Overall Key Metrics for Power BI-----------------------------------
+
+
+-- Query 25
+SELECT
+    COUNT(*) AS TOTAL_CLAIMS,
+
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT,
+
+    ROUND(MEDIAN(CLAIM_AMOUNT), 2) AS MEDIAN_CLAIM_AMOUNT,
+
+    ROUND(SUM(PREMIUM_AMOUNT), 2) AS TOTAL_PREMIUM,
+
+    ROUND(
+        COUNT_IF(REPORTING_DELAY_DAYS = 0) * 100.0 / COUNT(*),
+        2
+    ) AS SAME_DAY_REPORTING_PERCENTAGE,
+
+    ROUND(
+        COUNT_IF(CLAIM_AMOUNT >= 50000) * 100.0 / COUNT(*),
+        2
+    ) AS HIGH_VALUE_CLAIM_PERCENTAGE,
+
+    ROUND(AVG(REPORTING_DELAY_DAYS), 2) AS AVG_REPORTING_DELAY
+
+FROM INSURANCE_ANALYTICS;

@@ -1,0 +1,202 @@
+USE DATABASE INSURANCE_CLAIMS_DB;
+USE WAREHOUSE INSURANCE_CLAIMS_WH;
+USE SCHEMA CLAIMS;
+------------------------------------------------------------------------------------------------------------
+-------------------------------------Data Transformation---------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+
+
+
+-------------------------------------Create the Analytics Table-----------------------------------
+
+CREATE OR REPLACE TABLE INSURANCE_ANALYTICS AS
+SELECT
+    TXN_DATE_TIME,
+    TRANSACTION_ID,
+    CUSTOMER_ID,
+    POLICY_NUMBER,
+
+    POLICY_EFF_DT,
+    LOSS_DT,
+    REPORT_DT,
+
+    INSURANCE_TYPE,
+
+    PREMIUM_AMOUNT,
+    CLAIM_AMOUNT,
+
+    CITY,
+    STATE,
+
+    MARITAL_STATUS,
+    AGE,
+    TENURE,
+    EMPLOYMENT_STATUS,
+    NO_OF_FAMILY_MEMBERS,
+
+    RISK_SEGMENTATION,
+    HOUSE_TYPE,
+    SOCIAL_CLASS,
+    CUSTOMER_EDUCATION_LEVEL,
+
+    CLAIM_STATUS,
+    INCIDENT_SEVERITY,
+    AUTHORITY_CONTACTED,
+    ANY_INJURY,
+    POLICE_REPORT_AVAILABLE,
+
+    INCIDENT_STATE,
+    INCIDENT_CITY,
+    INCIDENT_HOUR_OF_THE_DAY,
+
+    AGENT_ID,
+    VENDOR_ID,
+
+    /* 1. Reporting Delay */
+    DATEDIFF(DAY, LOSS_DT, REPORT_DT) AS REPORTING_DELAY_DAYS,
+
+    /* 2. Claim-to-Premium Ratio */
+    ROUND(CLAIM_AMOUNT / NULLIF(PREMIUM_AMOUNT, 0), 2) AS CLAIM_TO_PREMIUM_RATIO,
+
+    /* 3. Age Group */
+    CASE
+        WHEN AGE BETWEEN 25 AND 29 THEN '25-29'
+        WHEN AGE BETWEEN 30 AND 39 THEN '30-39'
+        WHEN AGE BETWEEN 40 AND 49 THEN '40-49'
+        WHEN AGE BETWEEN 50 AND 59 THEN '50-59'
+        WHEN AGE BETWEEN 60 AND 64 THEN '60-64'
+        ELSE 'Not Available'
+    END AS AGE_GROUP,
+
+    /* 4. Tenure Group */
+    CASE
+        WHEN TENURE < 24 THEN '<2 Years'
+        WHEN TENURE < 60 THEN '2-4.9 Years'
+        WHEN TENURE < 84 THEN '5-6.9 Years'
+        WHEN TENURE < 120 THEN '7-9.9 Years'
+        ELSE '10+ Years'
+    END AS TENURE_GROUP,
+
+    /* 5. Claim Amount Bucket */
+    CASE
+        WHEN CLAIM_AMOUNT < 5000 THEN '<5K'
+        WHEN CLAIM_AMOUNT < 10000 THEN '5K-<10K'
+        WHEN CLAIM_AMOUNT < 25000 THEN '10K-<25K'
+        WHEN CLAIM_AMOUNT < 50000 THEN '25K-<50K'
+        ELSE '50K+'
+    END AS CLAIM_AMOUNT_BUCKET,
+
+    /* 6. Reporting Category */
+    CASE
+        WHEN DATEDIFF(DAY, LOSS_DT, REPORT_DT) = 0
+            THEN 'Same Day'
+        ELSE 'Delayed'
+    END AS REPORTING_CATEGORY,
+
+    /* 7. High Value Claim Flag */
+    CASE
+        WHEN CLAIM_AMOUNT >= 50000
+            THEN 'High Value'
+        ELSE 'Standard'
+    END AS CLAIM_VALUE_CATEGORY,
+
+    /* 8. Loss Year */
+    YEAR(LOSS_DT) AS LOSS_YEAR,
+
+    /* 9. Loss Month */
+    MONTH(LOSS_DT) AS LOSS_MONTH,
+
+    /* 10. Loss Month Name */
+    TO_CHAR(LOSS_DT, 'MMMM') AS LOSS_MONTH_NAME
+
+FROM INSURANCE_CLEANED;
+
+
+-------------------------------------------Run the Transformation---------------------------------
+SELECT 
+    COUNT(*) AS TOTAL_ROWS
+FROM INSURANCE_ANALYTICS;
+
+SELECT TOP 10
+    *
+FROM INSURANCE_ANALYTICS;
+
+-----------------------------------------Validate the transformations-----------------------------------
+
+-- Check 1 — Reporting delay
+SELECT
+    MIN(REPORTING_DELAY_DAYS) AS MIN_DELAY,
+    MAX(REPORTING_DELAY_DAYS) AS MAX_DELAY,
+    ROUND(AVG(REPORTING_DELAY_DAYS), 2) AS AVG_DELAY
+FROM INSURANCE_ANALYTICS;
+
+
+-- Check 2 — Age groups
+SELECT
+    AGE_GROUP,
+    COUNT(*) AS CLAIM_COUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY AGE_GROUP
+ORDER BY AGE_GROUP;
+
+
+-- Check 3 — Tenure groups
+SELECT
+    TENURE_GROUP,
+    COUNT(*) AS CLAIM_COUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY TENURE_GROUP
+ORDER BY TENURE_GROUP;
+
+
+-- Check 4 — Claim buckets
+SELECT
+    CLAIM_AMOUNT_BUCKET,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY CLAIM_AMOUNT_BUCKET
+ORDER BY MIN(CLAIM_AMOUNT);
+
+
+-- Check 5 — Same-day reporting
+SELECT
+    REPORTING_CATEGORY,
+    COUNT(*) AS CLAIM_COUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY REPORTING_CATEGORY;
+
+
+-- Check 6 — High-value claims
+SELECT
+    CLAIM_VALUE_CATEGORY,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY CLAIM_VALUE_CATEGORY;
+
+
+-- Check 7 — Yearly trend
+SELECT
+    LOSS_YEAR,
+    COUNT(*) AS CLAIM_COUNT,
+    ROUND(SUM(CLAIM_AMOUNT), 2) AS TOTAL_CLAIM_AMOUNT,
+    ROUND(AVG(CLAIM_AMOUNT), 2) AS AVG_CLAIM_AMOUNT
+FROM INSURANCE_ANALYTICS
+GROUP BY LOSS_YEAR
+ORDER BY LOSS_YEAR;
+
+
+-- Final validation
+
+SELECT
+    COUNT(*) AS TOTAL_ROWS,
+    SUM(IFF(REPORTING_DELAY_DAYS IS NULL,1 ,0)) AS NULL_REPORTING_DELAY,
+    SUM(IFF(AGE_GROUP = 'Not Available',1 ,0)) AS INVALID_AGE_GROUP,
+    SUM(IFF(TENURE_GROUP = 'Not Available',1 ,0)) AS INVALID_TENURE_GROUP,
+    SUM(IFF(CLAIM_AMOUNT_BUCKET IS NULL,1 ,0)) AS NULL_CLAIM_BUCKET,
+    SUM(IFF(REPORTING_CATEGORY IS NULL,1 ,0)) AS NULL_REPORTING_CATEGORY,
+    SUM(IFF(CLAIM_VALUE_CATEGORY IS NULL,1 ,0)) AS NULL_CLAIM_VALUE_CATEGORY
+FROM INSURANCE_ANALYTICS
+ORDER BY CLAIM_AMOUNT DESC;
+
