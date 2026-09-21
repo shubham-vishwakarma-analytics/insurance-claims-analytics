@@ -1,71 +1,47 @@
 # Insurance Claims Analytics
 
-## 📌 Project Overview
+An end-to-end Insurance Claims Analytics project focused on analyzing claim patterns, risk segmentation, financial exposure, operational behavior, and claim amount prediction.
 
-An end-to-end insurance claims analytics project covering data
-validation, SQL data cleaning, exploratory analysis, statistical
-analysis, investigation prioritization, machine learning, and
-business intelligence.
+## Project Overview
 
-## 🎯 Objectives
+This project analyzes insurance claims data using Excel, Snowflake SQL, Python, Databricks, PySpark, Power BI, and Streamlit.
 
-- Analyze insurance claim patterns
-- Measure financial claim exposure
-- Analyze risk and incident severity
-- Identify operational patterns
-- Prioritize claims for investigation
-- Predict claim amounts
-- Build an interactive Power BI dashboard
+The project follows an end-to-end analytics workflow:
 
-## 🛠️ Technology Stack
+Raw Data → Excel Profiling → Snowflake → SQL Cleaning → SQL Transformation → Python/Databricks → EDA → Diagnostic Analysis → Machine Learning → Power BI → Streamlit
 
-- Snowflake SQL
-- Databricks
-- Python
-- Pandas
-- NumPy
-- SciPy
-- Scikit-learn
-- Matplotlib
-- Seaborn
-- Power BI
+## Business Objectives
 
-## 📂 Project Structure
+- Analyze overall insurance claim activity.
+- Understand claim distribution across insurance types.
+- Analyze risk segmentation and incident severity.
+- Analyze claim amount and premium exposure.
+- Examine reporting delays and reporting behavior.
+- Analyze claim exposure across agents and vendors.
+- Identify relationships and patterns between claim attributes.
+- Estimate claim amounts using machine learning.
+- Build interactive Power BI dashboards.
+- Develop an interactive Streamlit analytics application.
 
-- `sql/` — Snowflake SQL scripts
-- `notebooks/` — Python analysis notebook
-- `powerbi/` — Power BI dashboard
-- `reports/` — Project presentation
-- `images/` — Dashboard screenshots
+## Dataset
 
-## 🔎 Analysis
+The project contains three datasets:
 
-The project covers:
+| Dataset | Rows | Columns |
+|---|---:|---:|
+| Insurance | 10,000 | 38 |
+| Employee | 1,200 | 10 |
+| Vendor | 600 | 7 |
 
-1. Data validation
-2. Data cleaning
-3. Data quality assessment
-4. Descriptive analysis
-5. Exploratory data analysis
-6. Diagnostic analysis
-7. Statistical analysis
-8. Investigation prioritization
-9. Claim amount prediction
-10. Model interpretation
-11. Power BI visualization
+Total records: **11,800**
 
-## ⚠️ Important Note
+### Main Relationships
 
-The dataset does not contain an explicit fraud label.
+```text
+EMPLOYEE_DATA.AGENT_ID
+        ↓
+INSURANCE_DATA.AGENT_ID
 
-Therefore, this project does not perform supervised fraud classification.
-Investigation prioritization is rule-based and should be treated as a
-manual-review support mechanism rather than proof of fraud.
-
-## 📊 Key Dataset Metrics
-
-- 10,000 insurance claims
-- ₹165.64M total claim amount
-- ₹16,563.83 average claim amount
-- ₹7,000 median claim amount
-- 1,565 same-day reported claims
+VENDOR_DATA.VENDOR_ID
+        ↓
+INSURANCE_DATA.VENDOR_ID
