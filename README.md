@@ -2,8 +2,6 @@
 
 > End-to-end insurance claims analytics project using Excel, SQL, Snowflake, Python, Machine Learning, Power BI, Streamlit, and GitHub.
 
-![Insurance Claims Analytics](Reports/Insurance_Claims_Analytics.pdf)
-
 **Author:** Shubham Vishwakarma  
 **Project Type:** End-to-End Data Analytics & Machine Learning  
 **Domain:** Insurance / Claims Analytics
