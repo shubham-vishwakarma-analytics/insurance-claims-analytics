@@ -597,5 +597,5 @@ The final solution combines **Excel, Snowflake SQL, Python, Machine Learning, Po
 ## Author
 
 **Shubham Vishwakarma**
-B.Tech Information Technology — 2026
+
 **Data Analytics | SQL | Python | Power BI | Snowflake | Machine Learning**
