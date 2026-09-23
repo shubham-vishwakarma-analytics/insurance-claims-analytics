@@ -1,577 +1,829 @@
-# Insurance Claims Analytics
+# E-Commerce Product Analytics & Conversion Prediction
 
-> **End-to-End Insurance Claims Analytics | Excel | SQL | Snowflake | Python | Machine Learning | Power BI | Streamlit | GitHub**
+> End-to-end e-commerce analytics project using SQL Server, T-SQL, Python, Machine Learning, Power BI, and GitHub.
 
-An end-to-end insurance claims analytics project that transforms raw claim data into business-ready insights through data profiling, SQL cleaning and transformation, exploratory analysis, diagnostic analysis, predictive modeling, Power BI dashboards, and a Streamlit application.
+![E-Commerce Analytics Overview](screenshots/business_reconmedation.png)
+
+**Author:** Shubham Vishwakarma  
+**Project Type:** End-to-End Data Analytics & Machine Learning  
+**Domain:** E-Commerce / Digital Analytics
+
+---
 
 ## Project Overview
 
-This project analyzes insurance claims to understand claim volume, financial exposure, insurance products, risk segmentation, incident severity, reporting behavior, agents, vendors, and claim amount prediction.
+E-Commerce Product Analytics & Conversion Prediction is an end-to-end analytics project that transforms raw e-commerce data into validated business KPIs, analytical datasets, interactive Power BI dashboards, and a machine-learning model for website session conversion prediction.
+
+The project covers the complete analytics lifecycle:
+
+```text
+Raw E-Commerce Data
+        ↓
+Data Audit & Validation
+        ↓
+SQL Cleaning & Transformation
+        ↓
+Analytical Views
+        ↓
+Python EDA
+        ↓
+Diagnostic Analysis
+        ↓
+Machine Learning
+        ↓
+Power BI Dashboards
+        ↓
+Business Insights
+        ↓
+Recommendations
+```
+
+The analysis focuses on sales performance, website sessions, marketing sources, product profitability, refunds, customer behavior, device performance, repeat sessions, and conversion prediction.
+
+---
 
 ## Business Objectives
 
-| #  | Objective                                                    |
-| -- | ------------------------------------------------------------ |
-| 1  | Analyze overall insurance claim activity                     |
-| 2  | Understand claim distribution across insurance types         |
-| 3  | Analyze risk segmentation and incident severity              |
-| 4  | Analyze claim amount and premium exposure                    |
-| 5  | Examine reporting delays and reporting behavior              |
-| 6  | Analyze claim exposure across agents and vendors             |
-| 7  | Identify relationships and patterns between claim attributes |
-| 8  | Estimate claim amounts using machine learning                |
-| 9  | Build interactive Power BI dashboards                        |
-| 10 | Develop an interactive Streamlit analytics application       |
+| # | Objective |
+|---|---|
+| 1 | Analyze overall e-commerce sales performance |
+| 2 | Measure revenue, orders, AOV, gross profit, and gross margin |
+| 3 | Analyze website session and conversion performance |
+| 4 | Compare conversion performance across devices |
+| 5 | Evaluate marketing source and campaign performance |
+| 6 | Analyze product revenue and profitability |
+| 7 | Identify refund concentration and refund risk |
+| 8 | Compare repeat and new-session behavior |
+| 9 | Analyze changes in sessions and orders over time |
+| 10 | Build a machine-learning model for conversion prediction |
+| 11 | Develop interactive Power BI dashboards |
+| 12 | Translate analytical findings into business recommendations |
+
+---
+
+## Project at a Glance
+
+| KPI | Result |
+|---|---:|
+| Gross Revenue | $1.94M |
+| Net Revenue | $1.85M |
+| Total Orders | 32,313 |
+| Total Sessions | 472,871 |
+| Conversion Rate | 6.83% |
+| Average Order Value | $59.99 |
+| Gross Margin | 62.74% |
+| Refund % of Revenue | 4.40% |
+
+---
 
 ## End-to-End Workflow
 
 ```text
-Raw CSV Data
-    ↓
-Excel Data Profiling
-    ↓
-Snowflake Data Storage
-    ↓
-SQL Validation
-    ↓
-SQL Cleaning
-    ↓
-SQL Transformation
-    ↓
-CLAIMS_ANALYTICS_VW
-    ↓
+Raw E-Commerce Data
+        ↓
+SQL Server
+        ↓
+Data Audit
+        ↓
+Data Cleaning
+        ↓
+Data Validation
+        ↓
+KPI Definitions
+        ↓
+Analytical Views
+        ↓
 Python
     ├── EDA
     ├── Diagnostic Analysis
-    └── Machine Learning
-    ↓
-Power BI Dashboards
-    ↓
-Streamlit Application
-    ↓
-Business Insights & Reporting
+    └── Business Analysis
+        ↓
+Machine Learning
+    └── Logistic Regression
+        ↓
+Power BI
+    ├── Executive Overview
+    ├── Marketing & Session Funnel
+    ├── Product & Refunds
+    └── Sales & Profitability
+        ↓
+Business Insights
+        ↓
+Recommendations
 ```
 
-## Dataset
+---
 
-| Dataset        |       Rows | Columns | Purpose                      |
-| -------------- | ---------: | ------: | ---------------------------- |
-| Insurance Data |     10,000 |      38 | Main claim-level analysis    |
-| Employee Data  |      1,200 |      10 | Agent/employee information   |
-| Vendor Data    |        600 |       7 | Vendor information           |
-| **Total**      | **11,800** |  **55** | **Complete project dataset** |
+# Data Model
 
-## Dataset Relationships
+The project uses six core source tables:
 
-| Relationship         | Key         | Purpose                               |
-| -------------------- | ----------- | ------------------------------------- |
-| Employee → Insurance | `AGENT_ID`  | Connects agents/employees with claims |
-| Vendor → Insurance   | `VENDOR_ID` | Connects vendors with claims          |
+- `products`
+- `website_sessions`
+- `website_pageviews`
+- `orders`
+- `order_items`
+- `order_item_refunds`
 
-**Agent:** the insurance representative associated with a policy or claim. `AGENT_ID` is used for claim volume and claim exposure analysis.
+## Entity Relationship Diagram
 
-**Vendor:** an external service provider associated with a claim when available. `VENDOR_ID` is used for claim volume and claim exposure analysis.
+![Entity Relationship Diagram](screenshots/ER-Diagram.png)
 
-## Data Quality & Cleaning
+The analytical workflow keeps raw source tables separate from the final analytical views.
 
-Data profiling was performed in Excel. Main cleaning and transformation were performed using SQL in Snowflake.
+```text
+dbo Raw Tables
+      ↓
+Cleaning & Validation
+      ↓
+analytics.vw_* Views
+      ↓
+Python + Power BI
+```
 
-| Data Quality Check                 |          Result |
-| ---------------------------------- | --------------: |
-| Full-row duplicates                | None identified |
-| Invalid Agent References           |               0 |
-| Invalid non-null Vendor References |               0 |
-| Policy Effective Date > Loss Date  |               0 |
-| Report Date < Loss Date            |               0 |
-| Negative Claim Amounts             |               0 |
-| Negative Premiums                  |               0 |
+---
 
-### Important Missing Values
+# SQL Server Analysis
 
-| Column                     | Missing Records | Missing % |
-| -------------------------- | --------------: | --------: |
-| `ADDRESS_LINE2`            |           8,505 |    85.05% |
-| `VENDOR_ID`                |           3,245 |    32.45% |
-| `AUTHORITY_CONTACTED`      |           1,945 |    19.45% |
-| `CUSTOMER_EDUCATION_LEVEL` |             529 |     5.29% |
-| `CITY`                     |              54 |     0.54% |
-| `INCIDENT_CITY`            |              46 |     0.46% |
+SQL Server forms the foundation of the analytical workflow.
 
-Descriptive missing values were standardized where appropriate. Missing `VENDOR_ID` values were retained when no reliable vendor information was available.
+## Main Activities
 
-## Sensitive Data Handling
+- Source-table auditing
+- Row-count validation
+- Missing-value checks
+- Duplicate checks
+- Invalid-value checks
+- Primary-key validation
+- Relationship validation
+- Data cleaning
+- Data transformation
+- KPI development
+- Executive sales analysis
+- Website and marketing analysis
+- Product and refund analysis
+- Customer/session analysis
+- Diagnostic analysis
+- KPI reconciliation
 
-| Sensitive Field | Analytical Layer |
-| --------------- | ---------------- |
-| SSN             | Excluded         |
-| Account Number  | Excluded         |
-| Routing Number  | Excluded         |
+## SQL Analysis Modules
 
-Credentials and secrets should never be committed to GitHub.
+| SQL Module | Purpose |
+|---|---|
+| `FINAL_SQL_MASTER.sql` | Complete SQL workflow |
+| `01_Final_Audit_Revalidation.sql` | Final data-quality and relationship checks |
+| `02_Data_Cleaning_and_Transformation.sql` | Cleaning and analytical preparation |
+| `03_KPI_Definitions.sql` | Standardized business metrics |
+| `04_EDA_Executive_Sales.sql` | Revenue, orders, profit, and sales trends |
+| `05_EDA_Website_Marketing.sql` | Sessions, conversion, devices, and marketing |
+| `06_EDA_Product_Refund.sql` | Product performance and refunds |
+| `07_EDA_Customer.sql` | Customer and session behavior |
+| `08_Diagnostic_Analysis.sql` | Cross-dimensional business analysis |
+| `09_Final_Data_Quality_Reconciliation.sql` | Final KPI and data-quality reconciliation |
+| `10_Final_KPI_Snapshot.sql` | Final business KPI output |
 
-## Snowflake Platform
+---
 
-| Component            | Value                 |
-| -------------------- | --------------------- |
-| Database             | `INSURANCE_CLAIMS_DB` |
-| Schema               | `CLAIMS`              |
-| Warehouse            | `INSURANCE_CLAIMS_WH` |
-| Main Analytical View | `CLAIMS_ANALYTICS_VW` |
+# KPI Framework
 
-## SQL Data Transformation
+## Gross Revenue
 
-`CLAIMS_ANALYTICS_VW` is the centralized analytical layer used by Python, Power BI, and Streamlit.
+Sum of order-line selling prices.
 
-| Derived Field            | Purpose                                |
-| ------------------------ | -------------------------------------- |
-| `REPORTING_DELAY_DAYS`   | Days between loss date and report date |
-| `CLAIM_TO_PREMIUM_RATIO` | Claim amount relative to premium       |
-| `AGE_GROUP`              | Customer age segmentation              |
-| `TENURE_GROUP`           | Tenure segmentation                    |
-| `CLAIM_AMOUNT_BUCKET`    | Claim amount categorization            |
-| `REPORTING_CATEGORY`     | Reporting delay categorization         |
-| `CLAIM_VALUE_CATEGORY`   | Claim value categorization             |
-| `LOSS_YEAR`              | Year from loss date                    |
-| `LOSS_MONTH`             | Month from loss date                   |
-| `LOSS_MONTH_NAME`        | Month name from loss date              |
+```text
+Gross Revenue = SUM(Order Item Selling Price)
+```
 
-## Exploratory Data Analysis
+## Gross Profit
 
-| Analysis Area     | Variables / Metrics                   |
-| ----------------- | ------------------------------------- |
-| Claim Amount      | Minimum, maximum, mean, median, total |
-| Premium           | Minimum, maximum, mean, total         |
-| Insurance Type    | Claim distribution                    |
-| Risk              | Low, Medium, High                     |
-| Incident Severity | Minor Loss, Major Loss, Total Loss    |
-| Customer          | Age, tenure, demographics             |
-| Reporting         | Reporting delay, same-day reporting   |
-| Agent             | Claim volume and exposure             |
-| Vendor            | Claim volume and exposure             |
+```text
+Gross Profit = Revenue - COGS
+```
 
-## Key Descriptive Metrics
+## Gross Margin
 
-| Metric                            |        Value |
-| --------------------------------- | -----------: |
-| Total Claims                      |       10,000 |
-| Total Claim Amount                | ₹165,638,300 |
-| Average Claim Amount              |   ₹16,563.83 |
-| Median Claim Amount               |       ₹7,000 |
-| Minimum Claim Amount              |         ₹100 |
-| Maximum Claim Amount              |     ₹100,000 |
-| Total Premium                     |  ₹885,085.95 |
-| Average Premium                   |       ₹88.51 |
-| Minimum Premium                   |           ₹6 |
-| Maximum Premium                   |         ₹200 |
-| Average Reporting Delay           |    3.21 days |
-| Reporting Delay Range             |     0–5 days |
-| Same-Day Claims                   |        1,565 |
-| Total Customers                   |       10,000 |
-| Total Agents                      |        1,200 |
-| Unique Non-null Vendors in Claims |          407 |
-| Insurance Types                   |            6 |
+```text
+Gross Margin % = (Revenue - COGS) / Revenue × 100
+```
 
-## Insurance Type Distribution
+## Average Order Value
 
-| Insurance Type | Claims |
-| -------------- | -----: |
-| Property       |  1,692 |
-| Mobile         |  1,692 |
-| Health         |  1,690 |
-| Life           |  1,682 |
-| Travel         |  1,670 |
-| Motor          |  1,574 |
+```text
+AOV = Revenue / Number of Orders
+```
 
-## Risk Segmentation
+## Net Revenue
 
-| Risk Segment |     Claims |
-| ------------ | ---------: |
-| Low          |      4,395 |
-| Medium       |      4,150 |
-| High         |      1,455 |
-| **Total**    | **10,000** |
+```text
+Net Revenue = Gross Revenue - Refunds
+```
 
-Risk segmentation is a source-data category and is not treated as a fraud label.
+## Conversion Rate
 
-## Incident Severity
+```text
+Conversion Rate = Converted Sessions / Total Sessions × 100
+```
 
-| Incident Severity |     Claims |
-| ----------------- | ---------: |
-| Total Loss        |      3,390 |
-| Major Loss        |      3,317 |
-| Minor Loss        |      3,293 |
-| **Total**         | **10,000** |
+## Revenue per Session
 
-| Attribute         | Meaning                                             |
-| ----------------- | --------------------------------------------------- |
-| Risk Segmentation | Assigned risk category                              |
-| Incident Severity | Level/category of loss associated with the incident |
+```text
+Revenue per Session = Revenue / Sessions
+```
 
-## Diagnostic Analysis
+## Refund Rate
 
-| #  | Relationship / Analysis        | Method                |
-| -- | ------------------------------ | --------------------- |
-| 1  | Risk × Incident Severity       | Cross-tabulation      |
-| 2  | Insurance Type × Risk          | Cross-tabulation      |
-| 3  | Insurance Type × Severity      | Cross-tabulation      |
-| 4  | Risk × Claim Amount            | GroupBy + Aggregation |
-| 5  | Severity × Claim Amount        | GroupBy + Aggregation |
-| 6  | Injury × Incident Severity     | Cross-tabulation      |
-| 7  | Police Report × Severity       | Cross-tabulation      |
-| 8  | Reporting Delay × Claim Amount | GroupBy + Aggregation |
-| 9  | Agent Analysis                 | GroupBy + Aggregation |
-| 10 | Vendor Analysis                | GroupBy + Aggregation |
+```text
+Refund Rate = Refund Amount / Revenue × 100
+```
 
-| Method           | Purpose                           |
-| ---------------- | --------------------------------- |
-| Cross-tabulation | Examine categorical relationships |
-| GroupBy          | Compare groups                    |
-| Count            | Measure records                   |
-| Mean             | Compare averages                  |
-| Median           | Compare central values            |
-| Sum              | Compare financial exposure        |
+---
 
-> **Diagnostic analysis identifies relationships and patterns in claim data. It does not establish causation.**
+# Power BI Dashboards
 
-## Predictive Analysis
+Four Power BI dashboards were developed for interactive business analysis.
 
-### Target
+## 01. Executive Overview
 
-| Target Variable | Description                  |
-| --------------- | ---------------------------- |
-| `CLAIM_AMOUNT`  | Claim amount to be estimated |
+![Executive Overview](screenshots/Executive-Overview.png)
 
-### Numerical Features
+Provides a high-level view of:
 
-| Feature                    |
-| -------------------------- |
-| `AGE`                      |
-| `TENURE`                   |
-| `INCIDENT_HOUR_OF_THE_DAY` |
-| `REPORTING_DELAY_DAYS`     |
+- Revenue
+- Net revenue
+- Orders
+- Sessions
+- Conversion rate
+- Average order value
+- Gross profit
+- Gross margin
+- Overall business performance
 
-### Categorical Features
+## 02. Marketing & Session Funnel
 
-| Feature                    |
-| -------------------------- |
-| `INSURANCE_TYPE`           |
-| `RISK_SEGMENTATION`        |
-| `INCIDENT_SEVERITY`        |
-| `MARITAL_STATUS`           |
-| `EMPLOYMENT_STATUS`        |
-| `HOUSE_TYPE`               |
-| `SOCIAL_CLASS`             |
-| `CUSTOMER_EDUCATION_LEVEL` |
-| `ANY_INJURY`               |
-| `POLICE_REPORT_AVAILABLE`  |
+![Marketing and Sessions](screenshots/Maketing&Sessions.png)
+
+Analyzes:
+
+- Marketing sources
+- Session volume
+- Conversion performance
+- Device performance
+- Repeat vs new sessions
+- Session trends
+- Marketing efficiency
+
+## 03. Product & Refunds
+
+![Products and Refunds](screenshots/Products&Refunds.png)
+
+Analyzes:
+
+- Product revenue
+- Gross profit
+- Gross margin
+- Product sales
+- Refund amounts
+- Refund rates
+- Product-level refund concentration
+
+## 04. Sales & Profitability
+
+![Sales and Profitability](screenshots/Sales&Profitability.png)
+
+Analyzes:
+
+- Sales trends
+- Revenue
+- Orders
+- Profitability
+- Gross margin
+- Supporting business KPIs
+
+---
+
+# Python EDA & Business Analysis
+
+Python was used after the SQL analytical layer to perform exploratory, diagnostic, and business analysis.
+
+## Analysis Areas
+
+- SQL Server data extraction
+- Data validation
+- Missing-value analysis
+- Duplicate analysis
+- Descriptive statistics
+- Time-series analysis
+- Marketing analysis
+- Device analysis
+- Product analysis
+- Refund analysis
+- Customer/session analysis
+- Repeat vs new-session analysis
+- Business rankings
+- KPI analysis
+- Business findings
+
+## Main Libraries
+
+```text
+Pandas
+NumPy
+Matplotlib
+Seaborn
+Scikit-learn
+PyODBC
+Jupyter
+```
+
+---
+
+# Machine Learning — Conversion Prediction
+
+A first-pass Logistic Regression model was developed to predict whether a website session converts.
+
+## Target Variable
+
+```text
+converted_session
+
+0 = Not Converted
+1 = Converted
+```
+
+## Features
+
+The model uses session-level attributes including:
+
+- Device type
+- UTM source
+- UTM campaign
+- UTM content
+- HTTP referrer
+- Repeat-session flag
+- Session hour
+- Day
+- Month
+- Year
+
+## Leakage Control
+
+The following outcome-related variables were intentionally excluded:
+
+```text
+order_count
+session_revenue
+```
+
+These variables can directly reveal conversion outcomes and therefore could introduce data leakage into the prediction model.
+
+---
 
 ## Machine Learning Pipeline
 
-| Stage                | Approach                |
-| -------------------- | ----------------------- |
-| Target               | `CLAIM_AMOUNT`          |
-| Train/Test Split     | 80% / 20%               |
-| Random State         | 42                      |
-| Missing Values       | Simple Imputation       |
-| Categorical Encoding | One-Hot Encoding        |
-| Preprocessing        | `ColumnTransformer`     |
-| Model 1              | Linear Regression       |
-| Model 2              | Random Forest Regressor |
-| Evaluation           | MAE, RMSE, R²           |
-
-## Model Performance
-
-| Model             |      MAE |      RMSE |     R² |
-| ----------------- | -------: | --------: | -----: |
-| Linear Regression | 6,935.15 | 11,976.84 | 0.7066 |
-| Random Forest     | 6,903.99 | 12,250.86 | 0.6930 |
-
-| Comparison           | Result            |
-| -------------------- | ----------------- |
-| Lower MAE            | Random Forest     |
-| Lower RMSE           | Linear Regression |
-| Higher R²            | Linear Regression |
-| Final Selected Model | Linear Regression |
-
-Linear Regression was selected based on the combined test-set performance across MAE, RMSE, and R². An R² of 0.7066 means the model explains approximately 70.66% of the variation in test-set claim amounts; it is not 70.66% prediction accuracy.
-
-## Power BI Dashboards
-
-| Dashboard                       | Main Focus                            | Key Components                                            |
-| ------------------------------- | ------------------------------------- | --------------------------------------------------------- |
-| 01 - Claims Overview            | Overall claims and financial exposure | KPIs, monthly trend, insurance type, premium              |
-| 02 - Risk & Severity            | Risk and incident severity            | Risk, severity, risk × severity, exposure, age            |
-| 03 - Operations & Investigation | Operational claim behavior            | Reporting delay, high-value claims, agent/vendor exposure |
-
-## Streamlit Application
-
-| Section              | Main Content                              |
-| -------------------- | ----------------------------------------- |
-| Overview             | KPIs, claim summary, charts               |
-| Descriptive Analysis | Distribution and category analysis        |
-| Diagnostic Analysis  | Relationships and operational analysis    |
-| Predictive Analysis  | Claim amount prediction and model results |
-| About Project        | Project information and technology stack  |
-
-### Interactive Filters
-
-| Filter            |
-| ----------------- |
-| Insurance Type    |
-| Risk Segment      |
-| Incident Severity |
-
-## Streamlit Architecture
-
 ```text
-Snowflake
-    ↓
-CLAIMS_ANALYTICS_VW
-    ↓
-Streamlit
-    ↓
-Pandas
-    ├── Filters
-    ├── KPIs
-    ├── Charts
-    └── ML Prediction
+Session Data
+      ↓
+Feature Selection
+      ↓
+Train / Test Split
+      ↓
+Numerical + Categorical Preprocessing
+      ↓
+One-Hot Encoding
+      ↓
+Logistic Regression
+      ↓
+Probability Prediction
+      ↓
+Model Evaluation
 ```
 
-## Technology Stack
+The preprocessing workflow uses a `ColumnTransformer` and pipeline-based modeling to keep feature preparation consistent between training and prediction.
 
-| Technology      | Category                | Purpose                                        |
-| --------------- | ----------------------- | ---------------------------------------------- |
-| Microsoft Excel | Data Analytics          | Data profiling and preparation                 |
-| Snowflake       | Cloud Data Warehouse    | Data storage and SQL analytics                 |
-| SQL             | Data Analytics          | Validation, cleaning, transformation, analysis |
-| Python          | Programming             | EDA, visualization, machine learning           |
-| Pandas          | Python Library          | Data manipulation                              |
-| NumPy           | Python Library          | Numerical operations                           |
-| Matplotlib      | Python Library          | Visualization                                  |
-| Seaborn         | Python Library          | Statistical visualization                      |
-| Scikit-learn    | Machine Learning        | Regression and evaluation                      |
-| Power BI        | Business Intelligence   | Interactive dashboards                         |
-| Streamlit       | Application Development | Interactive analytics application              |
-| Git             | Version Control         | Source control                                 |
-| GitHub          | Collaboration           | Repository and documentation                   |
+---
 
-## Project Architecture
+## Model Evaluation
 
-| Layer           | Technology   | Responsibility                          |
-| --------------- | ------------ | --------------------------------------- |
-| Data Source     | CSV          | Raw insurance, employee and vendor data |
-| Profiling       | Excel        | Data profiling and quality assessment   |
-| Storage         | Snowflake    | Centralized cloud data storage          |
-| Cleaning        | SQL          | Data cleaning and standardization       |
-| Transformation  | SQL          | Analytical fields and views             |
-| Analytics       | Python       | EDA and diagnostic analysis             |
-| ML              | Scikit-learn | Claim amount prediction                 |
-| BI              | Power BI     | Business dashboards                     |
-| Application     | Streamlit    | Interactive analytics                   |
-| Version Control | GitHub       | Project management and documentation    |
+| Metric | Score |
+|---|---:|
+| Accuracy | 93.17% |
+| Precision | 0.00 |
+| Recall | 0.00 |
+| F1 Score | 0.00 |
+| ROC-AUC | 0.632 |
 
-## Snowflake Architecture
+Approximately 6.8% of website sessions convert, resulting in a highly imbalanced target variable.
+
+Because of this imbalance, accuracy alone is not a sufficient measure of model quality.
+
+The Logistic Regression model is treated as a first-pass analytical baseline rather than a production-ready prediction system.
+
+### Potential Improvements
+
+- Class weighting
+- SMOTE / oversampling
+- Decision-threshold tuning
+- Precision-recall analysis
+- Additional feature engineering
+- Tree-based model comparison
+- Cross-validation
+- Hyperparameter tuning
+
+---
+
+# Key Business Insights
+
+## Revenue Concentration
+
+**The Original Mr. Fuzzy** contributes approximately **62% of total revenue**.
+
+This creates strong dependence on a single high-performing product and makes product-level monitoring important.
+
+## Mobile Conversion Gap
 
 ```text
-INSURANCE_CLAIMS_DB
-│
-└── CLAIMS
-    ├── INSURANCE_DATA
-    ├── EMPLOYEE_DATA
-    ├── VENDOR_DATA
-    ├── INSURANCE_CLEANED
-    ├── EMPLOYEE_CLEANED
-    ├── VENDOR_CLEANED
-    ├── INSURANCE_ANALYTICS
-    └── Analytical Views
-        ├── CLAIMS_ANALYTICS_VW
-        ├── CLAIMS_SUMMARY_VW
-        ├── INSURANCE_TYPE_VW
-        ├── RISK_SEGMENT_VW
-        ├── INCIDENT_SEVERITY_VW
-        ├── AGENT_PERFORMANCE_VW
-        ├── VENDOR_PERFORMANCE_VW
-        ├── MONTHLY_CLAIMS_TREND_VW
-        ├── STATE_CLAIMS_VW
-        └── CLAIM_INVESTIGATION_PRIORITY_VW
+Mobile   = 3.09%
+Desktop  = 8.50%
 ```
 
-## Repository Structure
+Desktop sessions convert substantially more frequently than mobile sessions.
+
+This indicates an area for investigation across:
+
+- Mobile user experience
+- Navigation
+- Page performance
+- Product discovery
+- Checkout experience
+- Mobile payment flow
+
+## Marketing Efficiency
+
+`gsearch` generates high traffic volume, but traffic volume alone does not represent business value.
+
+Marketing channels should be evaluated using:
+
+- Conversion rate
+- Revenue per session
+- Revenue
+- Orders
+- Profitability
+
+## Repeat Session Performance
 
 ```text
-insurance-claims-analytics/
+Repeat Sessions = 7.83%
+New Sessions    = 6.64%
+```
+
+Repeat sessions show stronger conversion performance than new sessions.
+
+This supports further analysis of:
+
+- Customer retention
+- Remarketing
+- Returning visitors
+- Loyalty initiatives
+
+## Product and Refund Risk
+
+Refund dollars are concentrated in the highest-volume product.
+
+Therefore, product monitoring should consider both:
+
+```text
+Absolute Refund Amount
++
+Refund Rate
+```
+
+rather than evaluating refund performance using only one metric.
+
+## Session Decline
+
+Session volume has declined since late 2014, contributing to lower order volume.
+
+This represents an area for further investigation across:
+
+- Marketing acquisition
+- Website traffic
+- Customer retention
+- Device performance
+- Channel performance
+
+---
+
+# Business Recommendations
+
+| Area | Recommendation |
+|---|---|
+| Mobile Experience | Audit and improve the mobile conversion funnel |
+| Marketing | Evaluate channels using conversion and revenue per session instead of traffic alone |
+| Product Mix | Protect high-revenue products and promote strong-margin, low-refund products |
+| Product Quality | Investigate products with high refund exposure |
+| Customer Retention | Develop strategies for repeat visitors |
+| Conversion Model | Address class imbalance and tune the prediction threshold |
+
+---
+
+# Project Visual Gallery
+
+## Business Recommendations
+
+![Business Recommendations](screenshots/business_reconmedation.png)
+
+## Conversion Analysis
+
+![Conversion Gap by Device and Repeat Status](screenshots/conversiongap_by_device_and_repeat_status.png)
+
+## Device Analysis
+
+![Conversion Rate by Device](screenshots/Conversion_rate_by_device_Python_Visualization.png)
+
+## Customer Analysis
+
+![Customer Order Frequency](screenshots/customer_order_frequency_By_SQL.png)
+
+## Gross Profit by Product
+
+![Gross Profit by Product](screenshots/Gross_Profit_by_Product_Python_Visualization.png)
+
+## Gross Profit Trend
+
+![Gross Profit Trend](screenshots/Gross_Profit_Trend_Python_Visualization.png)
+
+## Machine Learning
+
+![Model Prediction](screenshots/Model_prediction.png)
+
+## SQL KPI Analysis
+
+![SQL KPI](screenshots/SQL_KPI.png)
+
+---
+
+# Repository Structure
+
+```text
+ecommerce-product-analytics/
 │
-├── Dataset/
-│   ├── employee_data.csv
-│   ├── insurance_data.csv
-│   └── vendor_data.csv
+├── 01_SQL_Codes/
+│   ├── FINAL_SQL_MASTER.sql
+│   ├── 01_Final_Audit_Revalidation.sql
+│   ├── 02_Data_Cleaning_and_Transformation.sql
+│   ├── 03_KPI_Definitions.sql
+│   ├── 04_EDA_Executive_Sales.sql
+│   ├── 05_EDA_Website_Marketing.sql
+│   ├── 06_EDA_Product_Refund.sql
+│   ├── 07_EDA_Customer.sql
+│   ├── 08_Diagnostic_Analysis.sql
+│   ├── 09_Final_Data_Quality_Reconciliation.sql
+│   ├── 10_Final_KPI_Snapshot.sql
+│   └── ER-Diagram.png
 │
-├── Excel/
-├── PowerBI/
-├── Python/
-├── Reports/
-├── SQL/
-│   ├── 01_Database_Setup.sql
-│   ├── 02_Raw_Data_Validation.sql
-│   ├── 03_Data_Cleaning.sql
-│   ├── 04_Cleaned_Data_Validation.sql
-│   ├── 05_Data_Transformation.sql
-│   ├── 06_EDA_Business_Analysis.sql
-│   └── 07_Final_Views.sql
+├── 02_PowerBI_Dashboard/
+│   ├── PRP_Ecommerce_Digital_Analytics_Dashboard.pbix
+│   └── Power BI Dashboards.pdf
 │
-├── Streamlit_App/
+├── 03_Python_Analysis_ML/
+│   ├── ECommerce_Analytics_Python_ML_Analysis.ipynb
+│   ├── conversion_prediction_model.pkl
+│   └── outputs/
+│
+├── 04_Presentation/
+│   ├── PRP_Ecommerce_Digital_Analytics_Final_Presentation.pptx
+│   └── PRP_Ecommerce_Digital_Analytics_Final_Presentation.pdf
+│
+├── screenshots/
+├── data/
+├── requirements.txt
+├── .gitignore
+├── LICENSE
 └── README.md
 ```
 
-## SQL Pipeline
+---
 
-| File                             | Stage            | Purpose                                  |
-| -------------------------------- | ---------------- | ---------------------------------------- |
-| `01_Database_Setup.sql`          | Database Setup   | Creates database objects and environment |
-| `02_Raw_Data_Validation.sql`     | Raw Validation   | Validates raw datasets                   |
-| `03_Data_Cleaning.sql`           | Data Cleaning    | Cleans and standardizes data             |
-| `04_Cleaned_Data_Validation.sql` | Validation       | Validates cleaned datasets               |
-| `05_Data_Transformation.sql`     | Transformation   | Creates analytical fields                |
-| `06_EDA_Business_Analysis.sql`   | Analysis         | SQL EDA and business analysis            |
-| `07_Final_Views.sql`             | Analytical Layer | Creates reusable analytical views        |
+# How to Run
 
-## Final Analytical Views
+## SQL Server
 
-| View                              | Purpose                           |
-| --------------------------------- | --------------------------------- |
-| `CLAIMS_ANALYTICS_VW`             | Central analytical dataset        |
-| `CLAIMS_SUMMARY_VW`               | Overall claims summary            |
-| `INSURANCE_TYPE_VW`               | Insurance type analysis           |
-| `RISK_SEGMENT_VW`                 | Risk segment analysis             |
-| `INCIDENT_SEVERITY_VW`            | Severity analysis                 |
-| `AGENT_PERFORMANCE_VW`            | Agent-level claim exposure        |
-| `VENDOR_PERFORMANCE_VW`           | Vendor-level claim exposure       |
-| `MONTHLY_CLAIMS_TREND_VW`         | Monthly claim trend               |
-| `STATE_CLAIMS_VW`                 | State-level claim analysis        |
-| `CLAIM_INVESTIGATION_PRIORITY_VW` | Rule-based investigation analysis |
+Create the database:
 
-## Key Analytical Insights
+```sql
+CREATE DATABASE PRP_Ecommerce_Analytics;
+```
 
-| Area               | Insight                                                                     |
-| ------------------ | --------------------------------------------------------------------------- |
-| Claim Amount       | Average ₹16,563.83 vs median ₹7,000, indicating a right-skewed distribution |
-| Risk               | 1,455 claims are categorized as High Risk                                   |
-| Severity           | Claims are distributed across Minor, Major and Total Loss                   |
-| Reporting          | Reporting delays range from 0 to 5 days                                     |
-| Same-Day Reporting | 1,565 claims were reported on the same day                                  |
-| Agents             | Agent-level analysis shows claim volume and financial exposure              |
-| Vendors            | Vendor-level analysis shows claim volume and financial exposure             |
-| Prediction         | Linear Regression achieved R² of 0.7066 on the test set                     |
+Import the six source CSV files into the appropriate `dbo` tables.
 
-## Analytical Limitations
-
-| Limitation                | Explanation                                            |
-| ------------------------- | ------------------------------------------------------ |
-| No explicit fraud label   | Dataset does not contain a dedicated fraud target      |
-| No supervised fraud model | Fraud classification was therefore not implemented     |
-| Diagnostic analysis       | Identifies patterns but does not prove causation       |
-| Agent/Vendor exposure     | Exposure alone does not establish service quality      |
-| ML predictions            | Predictions are estimates, not guaranteed claim values |
-| Missing Vendor IDs        | Retained when reliable information was unavailable     |
-| Model performance         | Depends on the available dataset and test split        |
-
-## Security & Privacy
-
-| Item               | Handling                           |
-| ------------------ | ---------------------------------- |
-| Snowflake Password | Store securely outside source code |
-| Streamlit Secrets  | Store in `.streamlit/secrets.toml` |
-| API Keys           | Never commit                       |
-| SSN                | Excluded from analytical outputs   |
-| Account Number     | Excluded from analytical outputs   |
-| Routing Number     | Excluded from analytical outputs   |
-
-Recommended `.gitignore`:
+Run:
 
 ```text
-.streamlit/secrets.toml
+01_SQL_Codes/FINAL_SQL_MASTER.sql
+```
+
+Verify the generated analytical views and then run the individual SQL analysis scripts as required.
+
+## Python / Jupyter
+
+Create a virtual environment:
+
+```bash
+python -m venv venv
+```
+
+Activate it on Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Open:
+
+```text
+03_Python_Analysis_ML/ECommerce_Analytics_Python_ML_Analysis.ipynb
+```
+
+Update the SQL Server connection variables according to your local environment before running the notebook.
+
+## Power BI
+
+Open:
+
+```text
+02_PowerBI_Dashboard/PRP_Ecommerce_Digital_Analytics_Dashboard.pbix
+```
+
+Configure the SQL Server connection and refresh the data model.
+
+---
+
+# Project Deliverables
+
+| Deliverable | Location |
+|---|---|
+| SQL Analysis & Data Quality Scripts | `01_SQL_Codes/` |
+| Power BI Dashboard | `02_PowerBI_Dashboard/` |
+| Python EDA & ML Notebook | `03_Python_Analysis_ML/` |
+| Saved ML Model | `03_Python_Analysis_ML/conversion_prediction_model.pkl` |
+| Python Business Outputs | `03_Python_Analysis_ML/outputs/` |
+| Final Presentation | `04_Presentation/` |
+| Project Visuals | `screenshots/` |
+| Project Documentation | `README.md` |
+
+---
+
+# Data Availability
+
+The project uses six raw CSV datasets:
+
+```text
+products.csv
+website_sessions.csv
+website_pageviews.csv
+orders.csv
+order_items.csv
+order_item_refunds.csv
+```
+
+Large raw files may be excluded from the public GitHub repository to keep the repository lightweight.
+
+If the datasets are hosted separately, an approved data-access link can be added to the repository.
+
+Do not commit confidential, restricted, or sensitive business data to a public repository.
+
+---
+
+# Security & Data Handling
+
+Never commit:
+
+```text
+Database Passwords
+API Keys
+Connection Strings
+Private Credentials
+Sensitive Business Data
+```
+
+Recommended `.gitignore` entries:
+
+```text
+.env
+*.env
 __pycache__/
 *.pyc
+.ipynb_checkpoints/
 ```
 
-## How to Run
+---
 
-### 1. Clone Repository
+# Skills Demonstrated
 
-```bash
-git clone https://github.com/shubham-vishwakarma-analytics/insurance-claims-analytics.git
-cd insurance-claims-analytics
-```
+## SQL / Data Analytics
 
-### 2. Install Python Dependencies
+- SQL Server
+- T-SQL
+- Data cleaning
+- Data validation
+- Data-quality analysis
+- Joins
+- CTEs
+- Aggregations
+- Window functions
+- CASE expressions
+- Date functions
+- Analytical views
+- KPI development
+- Descriptive analysis
+- Diagnostic analysis
+- Business analysis
 
-```bash
-pip install pandas numpy matplotlib seaborn scikit-learn streamlit snowflake-connector-python
-```
+## Python
 
-### 3. Configure Streamlit Secrets
+- Pandas
+- NumPy
+- Matplotlib
+- Seaborn
+- Jupyter Notebook
+- Data manipulation
+- Data validation
+- Exploratory data analysis
+- Visualization
+- Business analysis
 
-Create:
+## Machine Learning
 
-```text
-.streamlit/secrets.toml
-```
+- Binary classification
+- Logistic Regression
+- Train/test split
+- Feature preprocessing
+- One-Hot Encoding
+- Pipeline
+- ColumnTransformer
+- Probability prediction
+- Confusion matrix
+- Classification report
+- ROC curve
+- ROC-AUC
+- Class imbalance
+- Data leakage prevention
 
-Store the required Snowflake credentials securely. Do not commit this file.
+## Power BI
 
-### 4. Run Streamlit
+- Power Query
+- Data modeling
+- DAX
+- KPI cards
+- Interactive filters
+- Time-series analysis
+- Product analysis
+- Marketing analysis
+- Sales analysis
+- Profitability analysis
+- Business dashboards
 
-```bash
-streamlit run Streamlit_App/app.py
-```
+## Tools
 
-Update the entry-file path if the application uses a different filename.
+- SQL Server
+- Jupyter
+- Python
+- Power BI
+- Git
+- GitHub
 
-## Project Deliverables
+---
 
-| Deliverable               | Status    |
-| ------------------------- | --------- |
-| Excel Data Profiling      | Completed |
-| Excel Data Preparation    | Completed |
-| Snowflake Database Setup  | Completed |
-| Raw Data Validation       | Completed |
-| SQL Data Cleaning         | Completed |
-| Cleaned Data Validation   | Completed |
-| SQL Data Transformation   | Completed |
-| SQL Business Analysis     | Completed |
-| Final SQL Views           | Completed |
-| Python Analysis           | Completed |
-| Exploratory Data Analysis | Completed |
-| Diagnostic Analysis       | Completed |
-| Machine Learning          | Completed |
-| Model Evaluation          | Completed |
-| Power BI Dashboards       | Completed |
-| Streamlit Application     | Completed |
-| Project Presentation      | Completed |
-| Project Reports           | Completed |
-| GitHub Repository         | Completed |
+# Analytical Limitations
 
-## Skills Demonstrated
+| Limitation | Explanation |
+|---|---|
+| Conversion imbalance | Only approximately 6.8% of sessions convert |
+| Model performance | Current Logistic Regression is a baseline model |
+| Positive-class performance | Precision, recall, and F1 are currently 0 |
+| Accuracy | High accuracy is influenced by class imbalance |
+| Causality | Diagnostic analysis identifies relationships but does not prove causation |
+| Historical data | Session and order trends reflect the available historical period |
+| Product concentration | Revenue is heavily concentrated in The Original Mr. Fuzzy |
 
-| Skill Area       | Skills                                                                           |
-| ---------------- | -------------------------------------------------------------------------------- |
-| Data Analytics   | Profiling, Cleaning, Transformation, EDA, Diagnostic Analysis, Business Analysis |
-| SQL              | Validation, Cleaning, Joins, GroupBy, Aggregations, CASE, Date Functions, Views  |
-| Python           | Pandas, NumPy, Matplotlib, Seaborn                                               |
-| Machine Learning | Regression, Feature Selection, Encoding, Imputation, MAE, RMSE, R²               |
-| Power BI         | KPI Cards, Slicers, Charts, Dashboards, Business Reporting                       |
-| Snowflake        | Cloud Data Warehouse, SQL Analytics, Analytical Views                            |
-| Streamlit        | Interactive filters, KPIs, charts, ML integration                                |
-| Git/GitHub       | Version control, repository organization, documentation                          |
+---
 
-## Project Outcome
+# Final Conclusion
 
-The project demonstrates the complete analytics lifecycle:
+This project demonstrates how raw e-commerce data can be transformed into a structured analytical solution using SQL Server, Python, Machine Learning, and Power BI.
+
+The project provides a complete workflow for:
 
 ```text
 DATA
  ↓
-PROFILE
+AUDIT
  ↓
 CLEAN
  ↓
@@ -585,17 +837,30 @@ VISUALIZE
  ↓
 MODEL
  ↓
-PREDICT
+EVALUATE
  ↓
-REPORT
- ↓
-INTERACT
+RECOMMEND
 ```
 
-The final solution combines **Excel, Snowflake SQL, Python, Machine Learning, Power BI, Streamlit, and GitHub** to transform raw insurance claims data into a structured analytics solution for understanding claims behavior, risk, severity, financial exposure, reporting patterns, and claim amount estimation.
+The analysis highlights important business areas including:
 
-## Author
+- Mobile conversion performance
+- Marketing efficiency
+- Product revenue concentration
+- Refund exposure
+- Repeat-session performance
+- Session trends
+- Product profitability
+- Conversion prediction
+
+The Logistic Regression model provides an initial baseline for conversion prediction. However, the highly imbalanced target and weak positive-class metrics indicate that additional feature engineering, class-imbalance handling, threshold tuning, and model experimentation would be required before considering a production-ready prediction system.
+
+---
+
+# Author
 
 **Shubham Vishwakarma**
 
-**Data Analytics | SQL | Python | Power BI | Snowflake | Machine Learning**
+**Data Analyst | SQL | Python | Power BI | Machine Learning**
+
+GitHub: `shubham-vishwakarma-analytics`
